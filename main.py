@@ -120,20 +120,6 @@ object_points = np.array([
 object_centroid = np.mean(object_points, axis=0) # centroid in box coordinate system
 
 
-# # 3D coordinates of the box corners in the object coordinate system
-# object_points = np.array([
-#     [0, 0, 0],         # Point 1: Corner at the origin
-#     [length, 0, 0],    # Point 2: Along the x-axis (length)
-#     [length, width, 0],# Point 3: Along the x and y-axis (length and width)
-#     [0, width, 0],     # Point 4: Along the y-axis (width)
-#     [0, 0, height],    # Point 5: Along the z-axis (height)
-#     [length, 0, height],# Point 6: Along the x and z-axis (length and height)
-#     [length, width, height], # Point 7: Along the x, y, and z-axis (length, width, and height)
-#     [0, width, height] # Point 8: Along the y and z-axis (width and height)
-# ], dtype=np.float32)
-
-# object_centroid = np.mean(object_points, axis=0) # centroid in box coordinate system
-
 
 ############################################################################################################
 ############################################################################################################
@@ -664,13 +650,9 @@ while True:
         y_axis_2D = tuple(map(int, axes_points_2D[2].ravel()))
         z_axis_2D = tuple(map(int, axes_points_2D[3].ravel()))
 
+        resized_color_image = cv2.resize(color_image, (out.shape[1], out.shape[0]))
 
-        # # Draw the axes on the image
-        # cv2.line(color_image, origin_2D, x_axis_2D, (0, 0, 255), 3)  # X-axis in red
-        # cv2.line(color_image, origin_2D, y_axis_2D, (0, 255, 0), 3)  # Y-axis in green
-        # cv2.line(color_image, origin_2D, z_axis_2D, (255, 0, 0), 3)  # Z-axis in blue
-
-        cv2.imshow('color_image',color_image)
+        cv2.imshow('color_image',resized_color_image)
 
         current_time = time.time()
         if current_time - last_fit_time >= fit_interval_seconds:
@@ -690,26 +672,6 @@ while True:
             extracted_verts = get_extracted_verts(colored_verts)
             centroid_extracted_verts = np.mean(extracted_verts, axis=0)
             cleaned_extracted_verts = remove_outliers_z_score(extracted_verts)
-
-
-            # if cleaned_extracted_verts.shape[0] > extracted_verts_limit:
-            #     cuboid_model = Cuboid()
-            #     best_eq, best_inliers = cuboid_model.fit(cleaned_extracted_verts, thresh=Treshold, maxIteration=MaxIter)
-            #     best_inliers = np.asarray(best_inliers)
-
-            #     if best_inliers.size > 0: # Check if not empty
-            #         inliers = cleaned_extracted_verts[best_inliers]
-            #         centroid_inliers = np.mean(inliers, axis=0)
-
-            #         normal_1 = best_eq[0, :3]# surface normal 1
-            #         normal_2 = best_eq[1, :3]
-            #         normal_3 = best_eq[2, :3]
-   
-            #         camera_axes = [
-            #         np.array([1, 0, 0]),  # Camera x-axis to the right
-            #         np.array([0, 1, 0]), # Camera y-axis down
-            #         np.array([0, 0, 1])]   # Camera z-axis into the scene]
-            #         x_axis_new, y_axis_new, z_axis_new = consistent_axes_with_camera(normal_1, normal_2, normal_3, camera_axes)
 
 
 
@@ -748,11 +710,6 @@ while True:
     y_axis_new = rotation_matrix[:, 1]  # The second column of the rotation matrix
     z_axis_new = rotation_matrix[:, 2]  # The third column of the rotation matrix
     draw_axes(out, centroid, x_axis_new, y_axis_new, z_axis_new)
-
-
-    # if cleaned_extracted_verts.shape[0] > extracted_verts_limit:
-    #     if best_inliers.size > 0:
-    #         draw_axes(out, centroid_inliers, x_axis_new, y_axis_new, z_axis_new)
 
     dt = time.time() - now
 
